@@ -42,6 +42,9 @@ class EventView(ViewSet):
 
      
 class StudentRegistrationView(APIView):
+    authentication_classes=[authentication.TokenAuthentication]
+    permission_classes=[permissions.IsAuthenticated]
+    
     def post(self,request,*args,**kwargs):
         clg_id=request.user.id
         print(clg_id)
@@ -57,7 +60,7 @@ class StudentRegistrationView(APIView):
 class StudentsView(ViewSet):
     authentication_classes=[authentication.TokenAuthentication]
     permission_classes=[permissions.IsAuthenticated]
-    
+
     
     def list(self,request,*args,**kwargs):
         qs=CustomUser.objects.filter(is_student=True)

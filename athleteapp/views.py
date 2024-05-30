@@ -36,13 +36,28 @@ class profileView(APIView):
     authentication_classes=[authentication.TokenAuthentication]
     permission_classes=[permissions.IsAuthenticated]
     
+    
     def get(self,request,*args,**kwargs):
         emp_id=request.user.id
         emp_obj=CustomUser.objects.get(id=emp_id)
         qs=StudentProfile.objects.get(user=emp_obj)
         serializer=ProfileSerializer(qs)
         return Response(serializer.data)
-         
+    
+    
+    def put(self, request, *args, **kwargs): 
+        emp_id = request.user.id
+        emp_obj = CustomUser.objects.get(id=emp_id)
+        profile_obj = StudentProfile.objects.get(user=emp_obj) 
+        serializer = ProfileEditSerializer(instance=profile_obj, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+
     
 
 class SponsorshipView(ViewSet):

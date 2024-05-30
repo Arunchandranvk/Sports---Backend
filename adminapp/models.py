@@ -33,10 +33,10 @@ class StudentProfile(models.Model):
    name = models.CharField(max_length=100,null=True)
    age=models.PositiveIntegerField(null=True)
    ph_no=models.PositiveIntegerField(null=True)
-   adm_no = models.CharField(max_length=100,null=True)
+   adm_no = models.PositiveIntegerField(null=True)
 
    def __str__(self):
-        return self.name
+        return self.name if self.name else "Unnamed Student"
 
 
 class Sponsorship(models.Model):

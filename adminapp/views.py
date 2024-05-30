@@ -81,7 +81,6 @@ class CollegeView(ViewSet):
     authentication_classes=[authentication.TokenAuthentication]
     permission_classes=[permissions.IsAuthenticated]
     
-    
     def list(self,request,*args,**kwargs):
         qs=CustomUser.objects.filter(is_college=True)
         serializer=CollegeSerializer(qs,many=True)

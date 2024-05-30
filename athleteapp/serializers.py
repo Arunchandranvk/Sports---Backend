@@ -30,10 +30,14 @@ class WinnerSerializer(serializers.ModelSerializer):
         
 class ProfileSerializer(serializers.ModelSerializer):
     user=serializers.CharField(read_only=True)
-    event=serializers.CharField(read_only=True)
     class Meta:
         model=StudentProfile
         fields="__all__"
+        
+class ProfileEditSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=StudentProfile
+        fields=["name","adm_no","age","ph_no"]
         
         
 class SponsorshipSerializer(serializers.ModelSerializer):

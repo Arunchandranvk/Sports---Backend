@@ -48,15 +48,20 @@ class StudentsView(ViewSet):
     
     
     def list(self,request,*args,**kwargs):
-        qs=StudentProfile.objects.all()
-        serializer=StudentDetailSerializer(qs,many=True)
+        qs=CustomUser.objects.filter(is_student=True)
+        serializer=StudentSerializer(qs,many=True)
         return Response(data=serializer.data)
     
     def retrieve(self,request,*args,**kwargs):
         id=kwargs.get("pk")
-        qs=StudentProfile.objects.get(id=id)
-        serializer=StudentDetailSerializer(qs)
-        return Response(data=serializer.data)      
+        qs=CustomUser.objects.get(id=id)
+        serializer=StudentSerializer(qs)
+        return Response(data=serializer.data)
+    
+    @action(methods=["post"],detail=True)
+    def sponsor_child(self,request,*args,**kwargs):
+        id=kwargs.get("pk")
+        qs=CustomUser.objects.get(id=id) 
 
 
 class CollegeView(ViewSet):

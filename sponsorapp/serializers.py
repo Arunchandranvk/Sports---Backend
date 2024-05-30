@@ -19,6 +19,13 @@ class UserSerializer(serializers.ModelSerializer):
         fields="__all__"
         
 
+class StudentSerializer(serializers.ModelSerializer):
+    college_id=serializers.CharField(read_only=True)
+    class Meta:
+        model=CustomUser
+        fields=["first_name","email","college_id"]
+        
+
 class StudentDetailSerializer(serializers.ModelSerializer):
     user=serializers.CharField(read_only=True)
     event=serializers.CharField(read_only=True)
