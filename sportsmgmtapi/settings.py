@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-hcvv34ql%$%g#&qd6c!*vt9u6@$5m!1y-%ifk#+%b_est8x3oz
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 AUTH_USER_MODEL="adminapp.CustomUser"
 
@@ -137,3 +137,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 CORS_ALLOW_ALL_ORIGINS= True
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True  # TLS - Transport Layer Security
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'spicesauction11@gmail.com'
+

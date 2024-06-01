@@ -17,6 +17,12 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model=CustomUser
         fields="__all__"
+        
+
+class StudentListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=CustomUser
+        fields=["id","email","first_name","profile_picture","username","password"]
 
 
 class StudentRegistrationSerializer(serializers.ModelSerializer):
@@ -25,7 +31,10 @@ class StudentRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['username', 'email', 'password','is_college','is_sponsor','is_student','profile_picture','first_name']
-        
+    
+    def create(self, validated_data):
+        user = CustomUser.objects.create_user(**validated_data)
+        return user    
 
 class StudentDetailSerializer(serializers.ModelSerializer):
     user=serializers.CharField(read_only=True)
@@ -42,6 +51,8 @@ class WinnerSerializer(serializers.ModelSerializer):
         
         
 class SponsorshipSerializer(serializers.ModelSerializer):
+    sponsor=serializers.CharField(read_only=True)
+    student=serializers.CharField(read_only=True)
     class Meta:
         model=Sponsorship
         fields="__all__"

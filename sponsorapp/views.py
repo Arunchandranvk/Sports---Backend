@@ -55,13 +55,30 @@ class StudentsView(ViewSet):
     def retrieve(self,request,*args,**kwargs):
         id=kwargs.get("pk")
         qs=CustomUser.objects.get(id=id)
-        serializer=StudentSerializer(qs)
-        return Response(data=serializer.data)
+        detail_qs=StudentProfile.objects.get(user=id)
+        student_serializer=StudentSerializer(qs)
+        student_detail=StudentDetailSerializer(detail_qs)
+        student_detailserializer=student_detail.data
+        response_data={
+            "student":student_serializer.data,
+            "student_detail":student_detailserializer
+        }
+        return Response(data=response_data)
     
     @action(methods=["post"],detail=True)
     def sponsor_child(self,request,*args,**kwargs):
-        id=kwargs.get("pk")
-        qs=CustomUser.objects.get(id=id) 
+        serializer=SponsorshipSerializer(data=request.data)
+        std_id=kwargs.get("pk")
+        std_obj=CustomUser.objects.get(id=std_id) 
+        std_profile=StudentProfile.objects.get(user=std_obj)
+        sponsor_id=request.user.id 
+        sponsor_obj=CustomUser.objects.get(id=sponsor_id)
+        if serializer.is_valid():
+            serializer.save(sponsor=sponsor_obj,student=std_profile)
+            return Response(data=serializer.data)
+        else:
+            return Response(data=serializer.errors)
+        
 
 
 class CollegeView(ViewSet):
@@ -100,6 +117,7 @@ class WinnerView(ViewSet):
     
     
     
+    
 class MysponsorshipView(ViewSet):
     authentication_classes=[authentication.TokenAuthentication]
     permission_classes=[permissions.IsAuthenticated]
@@ -109,12 +127,12 @@ class MysponsorshipView(ViewSet):
         emp_id=request.user.id
         emp_obj=CustomUser.objects.get(id=emp_id)
         qs=Sponsorship.objects.filter(sponsor=emp_obj)
-        serializer=SponsorshipSerializer(qs,many=True)
+        serializer=SponsorshipListSerializer(qs,many=True)
         return Response(data=serializer.data)
     
     def retrieve(self,request,*args,**kwargs):
         id=kwargs.get("pk")
         qs=Sponsorship.objects.get(id=id)
-        serializer=SponsorshipSerializer(qs)
+        serializer=SponsorshipListSerializer(qs)
         return Response(data=serializer.data) 
     

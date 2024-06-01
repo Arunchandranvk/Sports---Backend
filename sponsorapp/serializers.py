@@ -23,7 +23,7 @@ class StudentSerializer(serializers.ModelSerializer):
     college_id=serializers.CharField(read_only=True)
     class Meta:
         model=CustomUser
-        fields=["first_name","email","college_id"]
+        fields=["id","first_name","email","college_id"]
         
 
 class StudentDetailSerializer(serializers.ModelSerializer):
@@ -43,4 +43,10 @@ class WinnerSerializer(serializers.ModelSerializer):
 class SponsorshipSerializer(serializers.ModelSerializer):
     class Meta:
         model=Sponsorship
-        fields="__all__"
+        fields=["note","payment"]
+        
+class SponsorshipListSerializer(serializers.ModelSerializer):
+    student=serializers.CharField(read_only=True)
+    class Meta:
+        model=Sponsorship
+        fields=["student","note","payment","is_collegeapproved"]

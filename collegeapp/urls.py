@@ -6,6 +6,8 @@ from rest_framework.routers import DefaultRouter
 router=DefaultRouter()
 router.register("event",views.EventView,basename="events")
 router.register("student",views.StudentsView,basename="students")
+router.register("sponsors",views.SponsorshipView,basename="sponsors")
+
 
 
 
