@@ -51,6 +51,7 @@ class StudentRegistrationView(APIView):
     def post(self,request,*args,**kwargs):
         clg_id=request.user.id
         qs=CustomUser.objects.get(id=clg_id)
+        name=request.data.get('first_name')
         username = request.data.get('username')
         password = request.data.get('password')
         user_email = request.data.get('email')
@@ -60,7 +61,7 @@ class StudentRegistrationView(APIView):
             
             subject = "Sports management Registration!"
             message = (
-                f"Dear User,\n\n"
+                f"Dear {name},\n\n"
                 "You have been successfully registered! "
                 "This email has been sent to you to confirm your registration. Your username and password are as follows:\n\n"
                 f"username : {username}.\n\n"
