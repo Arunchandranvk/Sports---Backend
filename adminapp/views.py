@@ -99,7 +99,7 @@ class SponsorView(ViewSet):
     
     
     def list(self,request,*args,**kwargs):
-        qs=CustomUser.objects.filter(is_sponsor=True)
+        qs=CustomUser.objects.filter(is_sponsor=True,is_adminapproved=False)
         serializer=SponsorsSerializer(qs,many=True)
         return Response(data=serializer.data)
     
