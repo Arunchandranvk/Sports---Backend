@@ -12,4 +12,7 @@ router.register("winner",views.WinnerView,basename="winners")
 
 urlpatterns = [
     path("profile/",views.profileView.as_view(),name="profile"),
+    path("partevent/<int:event_id>/",views.ParticipateEventView.as_view(),name="partevet"),
+    path("parteventget/",views.ParticipateEventViewGET.as_view(),name="partevent"),
+    path("mywins/",views.MyWins.as_view(),name="win"),
 ] +router.urls

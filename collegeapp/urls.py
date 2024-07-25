@@ -14,5 +14,6 @@ router.register("sponsors",views.SponsorshipView,basename="sponsors")
 urlpatterns = [
     path("profile/",views.profileView.as_view(),name="profile"),
     path("studregister/",views.StudentRegistrationView.as_view(),name="studsignup"),
+   
     
-] +router.urls
+] +router.urls 

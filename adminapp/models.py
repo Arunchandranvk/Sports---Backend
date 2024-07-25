@@ -20,14 +20,13 @@ class CustomUser(AbstractUser):
 class Event(models.Model):
     posted_by=models.ForeignKey(CustomUser,on_delete=models.CASCADE,default=None,blank=True)
     title = models.CharField(max_length=100)
-    date = models.DateTimeField()
+    date = models.DateTimeField(auto_now_add=True)
+    due_date=models.DateTimeField(null=True)
     venue = models.TextField()
     description = models.TextField()
     image=models.ImageField(null=True)
-    
     def __str__(self):
         return self.title
-
 
 class StudentProfile(models.Model):
    user=models.OneToOneField(CustomUser,on_delete=models.CASCADE,related_name='student_profile')
@@ -35,6 +34,14 @@ class StudentProfile(models.Model):
    age=models.PositiveIntegerField(null=True)
    ph_no=models.PositiveIntegerField(null=True)
    adm_no = models.PositiveIntegerField(null=True)
+   photo=models.ImageField(upload_to="student profile",null=True)
+   dob=models.CharField(max_length=100,null=True)
+
+   #bank details
+   bankname=models.CharField(max_length=100,null=True)
+   accno=models.IntegerField(null=True)
+   ifsc_code=models.CharField(max_length=100,null=True)
+
 
    def __str__(self):
         return self.name if self.name else "Unnamed Student"

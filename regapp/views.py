@@ -36,8 +36,9 @@ class LoginView(ObtainAuthToken):
         if user:
             token, created = Token.objects.get_or_create(user=user)
             return Response({
+                'id':user.id,
                 'token': token.key,
-                'is_superuser':user. is_superuser,
+                'is_superuser':user.is_superuser,
                 'is_student':user.is_student ,
                 'is_sponsor':user.is_sponsor,
                 'is_college':user.is_college,

@@ -50,14 +50,17 @@ class StudentRegistrationView(APIView):
     
     def post(self,request,*args,**kwargs):
         clg_id=request.user.id
+        print(clg_id)
         qs=CustomUser.objects.get(id=clg_id)
         name=request.data.get('first_name')
         username = request.data.get('username')
         password = request.data.get('password')
         user_email = request.data.get('email')
         serializer=StudentRegistrationSerializer(data=request.data)
+      
         if serializer.is_valid():
-            serializer.save(college_id=qs)
+            print("valid")
+            serializer.save(college_id=qs,is_student=True)
             
             subject = "Sports management Registration!"
             message = (

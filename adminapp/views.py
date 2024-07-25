@@ -78,8 +78,8 @@ class StudentsView(ViewSet):
 
 
 class CollegeView(ViewSet):
-    authentication_classes=[authentication.TokenAuthentication]
-    permission_classes=[permissions.IsAuthenticated]
+    # authentication_classes=[authentication.TokenAuthentication]
+    # permission_classes=[permissions.IsAuthenticated]
     
     def list(self,request,*args,**kwargs):
         qs=CustomUser.objects.filter(is_college=True)
@@ -89,9 +89,10 @@ class CollegeView(ViewSet):
     def retrieve(self,request,*args,**kwargs):
         id=kwargs.get("pk")
         qs=CustomUser.objects.get(id=id)
-        serializer=CollegeSerializer(qs)
-        return Response(data=serializer.data) 
-    
+        stu=StudentProfile.objects.filter(user=qs)
+        serializer=StudentProfileSerializer(stu,many=True)
+        return Response(data=serializer.data)  
+
 
 class SponsorView(ViewSet):
     authentication_classes=[authentication.TokenAuthentication]
@@ -121,7 +122,14 @@ class SponsorView(ViewSet):
 class WinnerView(ViewSet):
     authentication_classes=[authentication.TokenAuthentication]
     permission_classes=[permissions.IsAuthenticated]
-    
+
+    def post(self,request):
+        ser=WinnerSerializer(data=request.data)
+        if ser.is_valid():
+            ser.save()
+            return Response(data=ser.data)
+        else:
+            return Response(data=ser.errors, status=status.HTTP_400_BAD_REQUEST)   
     
     def list(self,request,*args,**kwargs):
         qs=Winner.objects.all()

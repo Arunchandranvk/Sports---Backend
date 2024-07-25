@@ -12,7 +12,9 @@ from rest_framework.authtoken.models import Token
 
 from adminapp.models import *
 from sponsorapp.serializers import *
-
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.conf import settings
 
 class profileView(APIView):
     authentication_classes=[authentication.TokenAuthentication]
@@ -66,24 +68,48 @@ class StudentsView(ViewSet):
         return Response(data=response_data)
     
     @action(methods=["post"],detail=True)
-    def sponsor_child(self,request,*args,**kwargs):
-        serializer=SponsorshipSerializer(data=request.data)
-        std_id=kwargs.get("pk")
-        std_obj=CustomUser.objects.get(id=std_id) 
-        std_profile=StudentProfile.objects.get(user=std_obj)
-        sponsor_id=request.user.id 
-        sponsor_obj=CustomUser.objects.get(id=sponsor_id)
-        if serializer.is_valid():
-            serializer.save(sponsor=sponsor_obj,student=std_profile)
-            return Response(data=serializer.data)
-        else:
-            return Response(data=serializer.errors)
+    def sponsor_child(self, request, *args, **kwargs):
+        serializer = SponsorshipSerializer(data=request.data)
+        std_id = kwargs.get("pk")
+        try:
+            std_obj = CustomUser.objects.get(id=std_id)
+            std_profile = StudentProfile.objects.get(user=std_obj)
+            sponsor_id = request.user.id
+            sponsor_obj = CustomUser.objects.get(id=sponsor_id)
+            if serializer.is_valid():
+                sponsorship = serializer.save(sponsor=sponsor_obj, student=std_profile)
+                # Send email
+                subject = "Sponsorship Approved"
+                student_name = std_obj.get_full_name()
+                amount = sponsorship.payment  # Adjust based on your model
+                recipient_email = std_obj.email
+                # Render the email content
+                email_content = render_to_string('sponsor.html', {
+                    'student_name': student_name,
+                    'amount': amount,
+                })
+                send_mail(
+                    subject,
+                    f"Congratulations {student_name}! Your Sponsorship of ${amount} is Approved",
+                    settings.DEFAULT_FROM_EMAIL,
+                    [recipient_email],
+                    html_message=email_content
+                )
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        except StudentProfile.DoesNotExist:
+            return Response({'error': 'Student profile not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
 
 
 class CollegeView(ViewSet):
-    authentication_classes=[authentication.TokenAuthentication]
-    permission_classes=[permissions.IsAuthenticated]
+    # authentication_classes=[authentication.TokenAuthentication]
+    # permission_classes=[permissions.IsAuthenticated]
     
     
     def list(self,request,*args,**kwargs):
@@ -94,7 +120,8 @@ class CollegeView(ViewSet):
     def retrieve(self,request,*args,**kwargs):
         id=kwargs.get("pk")
         qs=CustomUser.objects.get(id=id)
-        serializer=UserSerializer(qs)
+        stu=StudentProfile.objects.filter(user=qs)
+        serializer=StudentDetailSerializer(stu,many=True)
         return Response(data=serializer.data) 
 
     

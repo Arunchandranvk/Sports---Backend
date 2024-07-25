@@ -64,4 +64,4 @@ class CollegeSerializer(serializers.ModelSerializer):
 class WinnerSerializer(serializers.ModelSerializer):
     class Meta:
         model=Winner
-        fields="__all__"
+        fields=['event','position','student']
