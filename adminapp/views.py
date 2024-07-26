@@ -91,9 +91,19 @@ class CollegeView(ViewSet):
     def retrieve(self,request,*args,**kwargs):
         id=kwargs.get("pk")
         qs=CustomUser.objects.get(id=id)
-        stu=StudentProfile.objects.filter(user=qs)
-        serializer=StudentProfileSerializer(stu,many=True)
-        return Response(data=serializer.data)  
+        print("college_id",qs)
+        students=[]
+        student=CustomUser.objects.filter(college_id=qs)
+        print("student all",student)
+        for i in student:
+            try:
+                stu=StudentProfile.objects.get(user=i.id)
+                students.append(stu)
+            except StudentProfile.DoesNotExist:
+                pass
+        print("=====",students)
+        serializer=StudentProfileSerializer(students,many=True)
+        return Response(data=serializer.data) 
 
 
 class SponsorView(ViewSet):
