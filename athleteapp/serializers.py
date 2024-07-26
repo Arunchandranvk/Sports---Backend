@@ -49,7 +49,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 class ProfileEditSerializer(serializers.ModelSerializer):
     class Meta:
         model=StudentProfile
-        fields=["name","adm_no","age","ph_no","photo",'dob','bankname','accno','ifsc_code','achivements']
+        fields=["name","adm_no","age","ph_no","photo",'dob','bankname','accno','ifsc_code','achivements','intrest']
         
         
 class SponsorshipSerializer(serializers.ModelSerializer):

@@ -14,5 +14,6 @@ urlpatterns = [
     path("profile/",views.profileView.as_view(),name="profile"),
     path("partevent/<int:event_id>/",views.ParticipateEventView.as_view(),name="partevet"),
     path("parteventget/",views.ParticipateEventViewGET.as_view(),name="partevent"),
-    path("mywins/",views.MyWins.as_view(),name="win"),
+    path("mywinsdistrict/",views.MyWinsDistrict.as_view(),name="windist"),
+    path("mywinsstate/",views.MyWinsState.as_view(),name="winstate"),
 ] + router.urls

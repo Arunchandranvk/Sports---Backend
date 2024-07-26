@@ -150,7 +150,7 @@ class ParticipateEventViewGET(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-class MyWins(APIView):
+class MyWinsDistrict(APIView):
     authentication_classes=[authentication.TokenAuthentication]
     permission_classes=[permissions.IsAuthenticated]
     def get(self,request):
@@ -158,7 +158,21 @@ class MyWins(APIView):
         print(us)
         try:
             user=CustomUser.objects.get(id=us)
-            wins=Winner.objects.filter(student=user)
+            wins=Winner.objects.filter(student=user,level="District Level")
+            ser=WinnerSerializerget(wins,many=True)
+            return Response(ser.data)
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+class MyWinsState(APIView):
+    authentication_classes=[authentication.TokenAuthentication]
+    permission_classes=[permissions.IsAuthenticated]
+    def get(self,request):
+        us=self.request.user.id
+        print(us)
+        try:
+            user=CustomUser.objects.get(id=us)
+            wins=Winner.objects.filter(student=user,level="State Level")
             ser=WinnerSerializerget(wins,many=True)
             return Response(ser.data)
         except:

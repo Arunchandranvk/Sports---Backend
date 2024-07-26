@@ -44,6 +44,7 @@ class StudentProfile(models.Model):
    
    #Achievement
    achivements = models.TextField(null=True)
+   intrest = models.CharField(max_length=500,null=True)
 
 
    def __str__(self):
