@@ -47,9 +47,13 @@ INSTALLED_APPS = [
     'regapp',
     'athleteapp',
     'sponsorapp',
-    'collegeapp'
+    'collegeapp',
+    'django_filters',
+  
+    
     
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -149,3 +153,11 @@ EMAIL_USE_TLS = True  # TLS - Transport Layer Security
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'dreamyworld266@gmail.com'
 EMAIL_HOST_PASSWORD = 'vgqrrqilgcwjbrkn'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend'
+    ],
+}
+

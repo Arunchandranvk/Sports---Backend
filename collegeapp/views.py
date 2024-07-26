@@ -15,6 +15,8 @@ from django.core.mail import send_mail
 
 from adminapp.models import *
 from collegeapp.serializers import *
+from athleteapp.models import ParticipateEvent
+from athleteapp.serializers import ParticipateeventSer
 
 
 class profileView(APIView):
@@ -121,7 +123,31 @@ class SponsorshipView(ViewSet):
     def approve_sponsor(self,request,*args,**kwargs):
         id=kwargs.get("pk")
         sponsor_obj=Sponsorship.objects.get(id=id)
-        sponsor_obj.is_collegeapproved=True
+        sponsor_obj.is_collegeapproved="Accept"
         sponsor_obj.save()
         serializer=SponsorshipSerializer(sponsor_obj)
         return Response({"msg":"sponsorship has been approved","data":serializer.data})
+    
+    @action(methods=["post"],detail=True)
+    def reject_sponsor(self,request,*args,**kwargs):
+        id=kwargs.get("pk")
+        sponsor_obj=Sponsorship.objects.get(id=id)
+        sponsor_obj.is_collegeapproved="Reject"
+        sponsor_obj.save()
+        serializer=SponsorshipSerializer(sponsor_obj)
+        return Response({"msg":"sponsorship has been Rejecetd","data":serializer.data})
+    
+    
+class EventParticipatedStudentsView(APIView):
+    authentication_classes=[authentication.TokenAuthentication]
+    permission_classes=[permissions.IsAuthenticated]
+    def get(self,request):
+        user=request.user
+        stuu=[]
+        students=CustomUser.objects.filter(college_id=user.username)
+        for stu in students:  
+            student=ParticipateEvent.objects.get(student=stu.id)
+            stuu.append(student)
+        print(stuu)
+        ser=ParticipateeventSer(stuu,many=True)
+        return Response(data=ser.data,status=status.HTTP_200_OK)

@@ -4,7 +4,7 @@ from rest_framework import authentication
 from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet,ViewSet
-from rest_framework import status
+from rest_framework import status,generics
 from rest_framework.decorators import action
 
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -12,6 +12,8 @@ from rest_framework.authtoken.models import Token
 
 from adminapp.models import *
 from adminapp.serializers import *
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import EventFilter
             
             
 class EventView(ViewSet):
@@ -95,8 +97,8 @@ class CollegeView(ViewSet):
 
 
 class SponsorView(ViewSet):
-    authentication_classes=[authentication.TokenAuthentication]
-    permission_classes=[permissions.IsAuthenticated]
+    # authentication_classes=[authentication.TokenAuthentication]
+    # permission_classes=[permissions.IsAuthenticated]
     
     
     def list(self,request,*args,**kwargs):
@@ -107,7 +109,8 @@ class SponsorView(ViewSet):
     def retrieve(self,request,*args,**kwargs):
         id=kwargs.get("pk")
         qs=CustomUser.objects.get(id=id)
-        serializer=SponsorsSerializer(qs)
+        spon=Sponsorship.objects.filter(sponsor=qs)
+        serializer=SponsorShipSerializer(spon,many=True)
         return Response(data=serializer.data) 
     
     @action(methods=['post'],detail=True)
@@ -142,3 +145,13 @@ class WinnerView(ViewSet):
         serializer=WinnerSerializer(qs)
         return Response(data=serializer.data) 
     
+    
+class EventSearchView(generics.ListAPIView):
+    queryset = Event.objects.all()
+    serializer_class = EventSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = EventFilter
+    
+class NotificationViewSet(ModelViewSet):
+    queryset = Notification.objects.all()
+    serializer_class = NotificationSerializer

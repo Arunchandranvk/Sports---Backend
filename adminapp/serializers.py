@@ -47,7 +47,20 @@ class StudentProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model=StudentProfile
         fields="__all__"
+
+class SponsorShipSerializer(serializers.ModelSerializer):
+    student_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Sponsorship
+        fields = ['id', 'sponsor', 'student_name', 'note', 'payment']
+
+    def get_student_name(self, obj):
+        # Assumes `obj` is an instance of Sponsorship and has a related StudentProfile
+        student_profile = obj.student  # Access the related StudentProfile through user
+        return student_profile.name if student_profile else None
         
+       
         
 class SponsorsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -64,4 +77,9 @@ class CollegeSerializer(serializers.ModelSerializer):
 class WinnerSerializer(serializers.ModelSerializer):
     class Meta:
         model=Winner
-        fields=['event','position','student']
+        fields=['event','position','student','level']
+        
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = '__all__'

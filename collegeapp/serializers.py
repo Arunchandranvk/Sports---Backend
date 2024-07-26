@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from adminapp.models import *
-    
+
     
 class EventSerializer(serializers.ModelSerializer):
     posted_by=serializers.CharField(read_only=True)
@@ -56,3 +56,5 @@ class SponsorshipSerializer(serializers.ModelSerializer):
     class Meta:
         model=Sponsorship
         fields="__all__"
+        
+        

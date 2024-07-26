@@ -14,6 +14,8 @@ from rest_framework.authtoken.models import Token
 
 from adminapp.models import *
 from regapp.serializers import *
+from django.utils import timezone
+from datetime import timedelta
 
 
 
@@ -30,21 +32,41 @@ class RegistrationView(APIView):
 
 class LoginView(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data,context={'request': request})
+        serializer = self.serializer_class(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
+        
         if user:
+            # Calculate the time window for notification (2 days from now)
+            now = timezone.now()
+            upcoming_due_date = now + timedelta(days=2)
+            
+            # Find events that are due within the next 2 days
+            events = Event.objects.filter(due_date__date__range=[now.date(), upcoming_due_date.date()])
+            
+            for event in events:
+                message = (
+                    f"Reminder: The event '{event.title}' is due in {event.due_date - now}.\n"
+                    f"Details:\n"
+                    f"Title: {event.title}\n"
+                    f"Venue: {event.venue}\n"
+                    f"Description: {event.description}\n"
+                )
+                Notification.objects.create(
+                    user=event.posted_by,
+                    event=event,
+                    message=message
+                )
+                print(f"Notification created for event '{event.title}' for user '{event.posted_by.username}'")
+
             token, created = Token.objects.get_or_create(user=user)
             return Response({
-                'id':user.id,
+                'id': user.id,
                 'token': token.key,
-                'is_superuser':user.is_superuser,
-                'is_student':user.is_student ,
-                'is_sponsor':user.is_sponsor,
-                'is_college':user.is_college,
+                'is_superuser': user.is_superuser,
+                'is_student': user.is_student,
+                'is_sponsor': user.is_sponsor,
+                'is_college': user.is_college,
             })
         else:
             return Response(data={"msg": "Login failed"}, status=status.HTTP_403_FORBIDDEN)
-
-
- 
