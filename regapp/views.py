@@ -46,11 +46,11 @@ class LoginView(ObtainAuthToken):
             
             for event in events:
                 message = (
-                    f"Reminder: The event '{event.title}' is due in {event.due_date - now}.\n"
-                    f"Details:\n"
-                    f"Title: {event.title}\n"
-                    f"Venue: {event.venue}\n"
-                    f"Description: {event.description}\n"
+                    f"The event '{event.title}' is due in {event.due_date - now}.\n"
+                    # f"Details:\n"
+                    # f"Title: {event.title}\n"
+                    # f"Venue: {event.venue}\n"
+                    # f"Description: {event.description}\n"
                 )
                 Notification.objects.create(
                     user=event.posted_by,

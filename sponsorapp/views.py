@@ -59,23 +59,32 @@ class StudentsView(ViewSet):
     def retrieve(self,request,*args,**kwargs):
         id=kwargs.get("pk")
         qs=CustomUser.objects.get(id=id)
-        detail_qs=StudentProfile.objects.get(user=id)
-        student_serializer=StudentSerializer(qs)
-        student_detail=StudentDetailSerializer(detail_qs)
-        student_detailserializer=student_detail.data
-        response_data={
-            "student":student_serializer.data,
-            "student_detail":student_detailserializer
-        }
-        return Response(data=response_data)
+        print("college_id",qs)
+        students=[]
+        student=CustomUser.objects.filter(college_id=qs)
+        print("student all",student)
+        for i in student:
+            print("id",i.id)
+            try:
+                stu=StudentProfile.objects.get(user=i.id)
+                print(stu.id)
+                # if stu.ph_no:
+                students.append(stu)
+            except StudentProfile.DoesNotExist:
+                pass
+        print("=====",students)
+        serializer=StudentProfileSerializer(students,many=True)
+        return Response(data=serializer.data) 
     
     @action(methods=["post"],detail=True)
     def sponsor_child(self, request, *args, **kwargs):
         serializer = SponsorshipSerializer(data=request.data)
         std_id = kwargs.get("pk")
         try:
-            std_obj = CustomUser.objects.get(id=std_id)
-            std_profile = StudentProfile.objects.get(user=std_obj)
+           
+            std_profile = StudentProfile.objects.get(id=std_id)
+            std_obj = CustomUser.objects.get(id=std_profile.user.id)
+            print("+++++++++++",std_obj)
             sponsor_id = request.user.id
             sponsor_obj = CustomUser.objects.get(id=sponsor_id)
             if serializer.is_valid():
@@ -102,8 +111,8 @@ class StudentsView(ViewSet):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except CustomUser.DoesNotExist:
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-        except StudentProfile.DoesNotExist:
-            return Response({'error': 'Student profile not found'}, status=status.HTTP_404_NOT_FOUND)
+        # except StudentProfile.DoesNotExist:
+        #     return Response({'error': 'Student profile not found'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
@@ -174,4 +183,20 @@ class MysponsorshipView(ViewSet):
         qs=Sponsorship.objects.get(id=id)
         serializer=SponsorshipListSerializer(qs)
         return Response(data=serializer.data) 
-    
+
+class StudentRequestSend(APIView):
+    authentication_classes=[authentication.TokenAuthentication]
+    permission_classes=[permissions.IsAuthenticated]
+    def get(self,request,pk):
+        print(pk)
+        spon= request.user
+        sponsor=CustomUser.objects.get(id=spon)
+        print(sponsor)
+        stuu=StudentProfile.objects.get(id=pk)
+        print(stuu.user)
+        stu=CustomUser.objects.get(id=stuu.user.id)
+        print(stu.college_id)
+        clg=CustomUser.objects.get(username=stu.college_id)
+        print(clg)
+        Sponsorship.objects.create(sponsor=sponsor,student=stuu,college=clg,is_collegeapproved="Waiting")
+        return Response({"Msg":"Request Send Successfully"},status=status.HTTP_200_OK)

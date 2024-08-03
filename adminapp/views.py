@@ -19,6 +19,8 @@ from .filters import EventFilter
 class EventView(ViewSet):
     authentication_classes=[authentication.TokenAuthentication]
     permission_classes=[permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = EventFilter
     
     def create(self,request,*args,**kwargs):
         serializer=EventSerializer(data=request.data)
@@ -51,7 +53,19 @@ class EventView(ViewSet):
             return Response({"msg": "Event removed"})
         except Event.DoesNotExist:
             return Response({"msg": "Event not found"}, status=status.HTTP_404_NOT_FOUND)
-        
+    @action(detail=False, methods=['get'])
+    def search(self, request, *args, **kwargs): 
+        filterset = self.filterset_class(request.GET, queryset=self.get_queryset())
+        if filterset.is_valid():
+            # Apply filters
+            queryset = filterset.qs
+            serializer = EventSerializer(queryset, many=True)
+            return Response(serializer.data)
+        else:
+            return Response({'error': 'Invalid filter parameters'}, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_queryset(self): 
+        return Event.objects.all()    
         
 
 class StudentsView(ViewSet):
@@ -112,7 +126,7 @@ class SponsorView(ViewSet):
     
     
     def list(self,request,*args,**kwargs):
-        qs=CustomUser.objects.filter(is_sponsor=True,is_adminapproved=False)
+        qs=CustomUser.objects.filter(is_sponsor=True)
         serializer=SponsorsSerializer(qs,many=True)
         return Response(data=serializer.data)
     
@@ -133,8 +147,8 @@ class SponsorView(ViewSet):
     
     
 class WinnerView(ViewSet):
-    authentication_classes=[authentication.TokenAuthentication]
-    permission_classes=[permissions.IsAuthenticated]
+    # authentication_classes=[authentication.TokenAuthentication]
+    # permission_classes=[permissions.IsAuthenticated]
 
     def post(self,request):
         ser=WinnerSerializer(data=request.data)
@@ -149,11 +163,11 @@ class WinnerView(ViewSet):
         serializer=WinnerSerializer(qs,many=True)
         return Response(data=serializer.data)
     
-    def retrieve(self,request,*args,**kwargs):
-        id=kwargs.get("pk")
-        qs=Winner.objects.get(id=id)
-        serializer=WinnerSerializer(qs)
-        return Response(data=serializer.data) 
+    # def retrieve(self,request,*args,**kwargs):
+    #     id=kwargs.get("pk")
+    #     qs=Winner.objects.get(id=id)
+    #     serializer=WinnerSerializer(qs)
+    #     return Response(data=serializer.data) 
     
     
 class EventSearchView(generics.ListAPIView):
@@ -163,5 +177,5 @@ class EventSearchView(generics.ListAPIView):
     filterset_class = EventFilter
     
 class NotificationViewSet(ModelViewSet):
-    queryset = Notification.objects.all()
+    queryset = Notification.objects.all().order_by("-created_at")
     serializer_class = NotificationSerializer

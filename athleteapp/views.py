@@ -45,7 +45,7 @@ class profileView(APIView):
         return Response(serializer.data)
     
     
-    def put(self, request, *args, **kwargs): 
+    def patch(self, request, *args, **kwargs): 
         emp_id = request.user.id
         emp_obj = CustomUser.objects.get(id=emp_id)
         profile_obj = StudentProfile.objects.get(user=emp_obj) 
@@ -66,12 +66,15 @@ class SponsorshipView(ViewSet):
     
     
     def list(self,request,*args,**kwargs):
-        emp_id=request.user.id
-        emp_obj=CustomUser.objects.get(id=emp_id)
-        stud_id=StudentProfile.objects.get(user=emp_obj)
-        qs=Sponsorship.objects.filter(student=stud_id)
-        serializer=SponsorshipSerializer(qs,many=True)
-        return Response(data=serializer.data)
+        try:
+            emp_id=request.user.id
+            emp_obj=CustomUser.objects.get(id=emp_id)
+            stud_id=StudentProfile.objects.get(user=emp_obj)
+            qs=Sponsorship.objects.filter(student=stud_id)
+            serializer=SponsorshipSerializer(qs,many=True)
+            return Response(data=serializer.data)
+        except:
+            return Response("Student Profile Does not exist!!!")
     
     def retrieve(self,request,*args,**kwargs):
         id=kwargs.get("pk")
@@ -137,7 +140,7 @@ class ParticipateEventViewGET(APIView):
     authentication_classes=[authentication.TokenAuthentication]
     permission_classes=[permissions.IsAuthenticated]
     def get(self,request):
-        us=self.request.user.id
+        us=request.user.id
         print(us)
 
         try:
@@ -155,10 +158,11 @@ class MyWinsDistrict(APIView):
     permission_classes=[permissions.IsAuthenticated]
     def get(self,request):
         us=self.request.user.id
-        print(us)
+        print("student",us)
         try:
             user=CustomUser.objects.get(id=us)
-            wins=Winner.objects.filter(student=user,level="District Level")
+            stu=StudentProfile.objects.get(user=user)
+            wins=Winner.objects.filter(student=stu,level="District Level")
             ser=WinnerSerializerget(wins,many=True)
             return Response(ser.data)
         except:
@@ -172,7 +176,8 @@ class MyWinsState(APIView):
         print(us)
         try:
             user=CustomUser.objects.get(id=us)
-            wins=Winner.objects.filter(student=user,level="State Level")
+            stu=StudentProfile.objects.get(user=user)
+            wins=Winner.objects.filter(student=stu,level="State Level")
             ser=WinnerSerializerget(wins,many=True)
             return Response(ser.data)
         except:

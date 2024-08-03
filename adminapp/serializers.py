@@ -44,9 +44,10 @@ class UserSerializer(serializers.ModelSerializer):
 class StudentProfileSerializer(serializers.ModelSerializer):
     user=serializers.CharField(read_only=True)
     event=serializers.CharField(read_only=True)
+    email_name=serializers.ReadOnlyField(source="user.email")
     class Meta:
         model=StudentProfile
-        fields="__all__"
+        fields=['id','name','user','event','age','ph_no','adm_no','photo','dob','achivements','interest','email_name','bankname','accno','ifsc_code']
 
 class SponsorShipSerializer(serializers.ModelSerializer):
     student_name = serializers.SerializerMethodField()
@@ -56,9 +57,12 @@ class SponsorShipSerializer(serializers.ModelSerializer):
         fields = ['id', 'sponsor', 'student_name', 'note', 'payment']
 
     def get_student_name(self, obj):
-        # Assumes `obj` is an instance of Sponsorship and has a related StudentProfile
-        student_profile = obj.student  # Access the related StudentProfile through user
-        return student_profile.name if student_profile else None
+        try:
+            # Assumes `obj` is an instance of Sponsorship and has a related StudentProfile
+            student_profile = obj.student  # Access the related StudentProfile through user
+            return student_profile.name if student_profile else None
+        except:
+            pass
         
        
         
@@ -75,9 +79,21 @@ class CollegeSerializer(serializers.ModelSerializer):
         
         
 class WinnerSerializer(serializers.ModelSerializer):
+    event_name = serializers.ReadOnlyField(source='event.title')
+    student_name =serializers.ReadOnlyField(source='student.name')
+    student_clg = serializers.SerializerMethodField()
     class Meta:
         model=Winner
-        fields=['event','position','student','level']
+        fields=['event','position','student_name','level','event_name','student','student_clg']
+        
+    def get_student_clg(self, obj):
+        try:
+            student_profile = obj.student.user.college_id  # Access the related StudentProfile through user
+            # clg=CustomUser.objects.get(username=student_profile)
+            return student_profile if student_profile else None
+        except:
+            pass
+ 
         
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:

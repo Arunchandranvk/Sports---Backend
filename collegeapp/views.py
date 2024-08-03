@@ -14,7 +14,7 @@ from django.core.mail import send_mail
 
 
 from adminapp.models import *
-from collegeapp.serializers import *
+from .serializers import *
 from athleteapp.models import ParticipateEvent
 from athleteapp.serializers import ParticipateeventSer
 
@@ -91,8 +91,10 @@ class StudentsView(ViewSet):
     def list(self,request,*args,**kwargs):
         clg_id=request.user
         print(clg_id)
-        qs=CustomUser.objects.filter(is_student=True,college_id=clg_id)
-        serializer=StudentListSerializer(qs,many=True)
+        students_qs = CustomUser.objects.filter(is_student=True, college_id=clg_id)
+        stu_qs = StudentProfile.objects.filter(user__in=students_qs)
+        print(stu_qs)
+        serializer=StudentListSerializer1(stu_qs,many=True)
         return Response(data=serializer.data)
     
     def retrieve(self,request,*args,**kwargs):
@@ -109,7 +111,7 @@ class SponsorshipView(ViewSet):
     
     def list(self,request,*args,**kwargs):
         clg_id=request.user
-        qs=Sponsorship.objects.filter(student__user__college_id=clg_id)
+        qs=Sponsorship.objects.filter(student__user__college_id=clg_id,is_collegeapproved="Waiting")
         serializer=SponsorshipSerializer(qs,many=True)
         return Response(data=serializer.data)
     
@@ -139,15 +141,29 @@ class SponsorshipView(ViewSet):
     
     
 class EventParticipatedStudentsView(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    def get(self, request):
+        user = request.user
+        stuu = []
+        students = CustomUser.objects.filter(college_id=user.username)
+        for stu in students:
+            events = ParticipateEvent.objects.filter(student=stu.id)
+            if events.exists():
+                stuu.extend(events)
+        if not stuu:
+            return Response("No Events Registered!!!!!!", status=status.HTTP_200_OK)
+        ser = ParticipateeventSer(stuu, many=True)
+        return Response(data=ser.data, status=status.HTTP_200_OK)
+
+class SponsorshipStuView(ViewSet):
     authentication_classes=[authentication.TokenAuthentication]
     permission_classes=[permissions.IsAuthenticated]
-    def get(self,request):
-        user=request.user
-        stuu=[]
-        students=CustomUser.objects.filter(college_id=user.username)
-        for stu in students:  
-            student=ParticipateEvent.objects.get(student=stu.id)
-            stuu.append(student)
-        print(stuu)
-        ser=ParticipateeventSer(stuu,many=True)
-        return Response(data=ser.data,status=status.HTTP_200_OK)
+
+    
+    def list(self,request,*args,**kwargs):
+        clg_id=request.user
+        qs=Sponsorship.objects.filter(student__user__college_id=clg_id,is_collegeapproved="Accept")
+        serializer=SponsorshipSerializer1(qs,many=True)
+        return Response(data=serializer.data)
+    

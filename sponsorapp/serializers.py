@@ -34,10 +34,10 @@ class StudentDetailSerializer(serializers.ModelSerializer):
         fields="__all__"
 
         
-class WinnerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model=Winner
-        fields="__all__"
+# class WinnerSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model=Winner
+#         fields="__all__"
         
         
 class SponsorshipSerializer(serializers.ModelSerializer):
@@ -47,6 +47,15 @@ class SponsorshipSerializer(serializers.ModelSerializer):
         
 class SponsorshipListSerializer(serializers.ModelSerializer):
     student=serializers.CharField(read_only=True)
+    student_clg = serializers.SerializerMethodField()
     class Meta:
         model=Sponsorship
-        fields=["student","note","payment","is_collegeapproved"]
+        fields=["student","student_clg","note","payment","is_collegeapproved"]
+        
+    def get_student_clg(self, obj):
+        try:
+            student_profile = obj.student.user.college_id  # Access the related StudentProfile through user
+            # clg=CustomUser.objects.get(username=student_profile)
+            return student_profile if student_profile else None
+        except:
+            pass

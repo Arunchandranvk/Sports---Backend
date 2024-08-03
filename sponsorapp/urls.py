@@ -14,5 +14,5 @@ router.register("winner",views.WinnerView,basename="winners")
 
 urlpatterns = [
     path("profile/",views.profileView.as_view(),name="profile"),
-    
+    path("requestsend/<int:pk>/",views.StudentRequestSend.as_view(),name="req"),
 ] +router.urls

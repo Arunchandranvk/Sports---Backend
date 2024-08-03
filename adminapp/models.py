@@ -14,7 +14,7 @@ class CustomUser(AbstractUser):
     is_adminapproved = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
     profile_picture = models.ImageField(upload_to='images', null=True)
-    college_id=models.CharField(max_length=100,null=True)
+    college_id=models.CharField(max_length=100,null=True,blank=True)
 
 
 class Event(models.Model):
@@ -44,7 +44,7 @@ class StudentProfile(models.Model):
    
    #Achievement
    achivements = models.TextField(null=True)
-   intrest = models.CharField(max_length=500,null=True)
+   interest = models.CharField(max_length=500,null=True)
 
 
    def __str__(self):
@@ -54,6 +54,7 @@ class StudentProfile(models.Model):
 class Sponsorship(models.Model):
     sponsor=models.ForeignKey(CustomUser,on_delete=models.CASCADE)
     student=models.ForeignKey(StudentProfile,on_delete=models.CASCADE)
+    college = models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name="college_name",null=True)
     note=models.CharField(max_length=100)
     payment=models.IntegerField(null=True,blank=True)
     options = (
@@ -75,13 +76,16 @@ class Complaints(models.Model):
 
 class Winner(models.Model):
     event=models.ForeignKey(Event,on_delete=models.CASCADE)
-    student=models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    student=models.ForeignKey(StudentProfile, on_delete=models.CASCADE)
     position=models.PositiveIntegerField(validators=[MinValueValidator(1),MaxValueValidator(3)])
     option=(
         ('District Level','District Level'),
         ('State Level','State Level')
     )
     level=models.CharField(max_length=100,choices=option,default="District Level")
+    
+    def __str__(self):
+        return self.event.title
     
 class Feedback(models.Model):
     user=models.ForeignKey(CustomUser,on_delete=models.CASCADE)    

@@ -8,9 +8,20 @@ from .models import *
 
 class ParticipateeventSer(serializers.ModelSerializer):
     event_name = serializers.ReadOnlyField(source='event.title')
+    student_name = serializers.SerializerMethodField()
     class Meta:
         model=ParticipateEvent
-        fields=['id','event','student','event_name']
+        fields=['id','event','student_name','event_name']
+    def get_student_name(self, obj):
+        try:
+            print("good")
+            student_profile = obj.student.id  
+            print(student_profile)
+            stu=StudentProfile.objects.get(user=student_profile)
+            print("student",stu)
+            return stu.name if stu else None
+        except:
+            pass
     
 class EventSerializer(serializers.ModelSerializer):
     posted_by=serializers.CharField(read_only=True)
@@ -49,7 +60,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 class ProfileEditSerializer(serializers.ModelSerializer):
     class Meta:
         model=StudentProfile
-        fields=["name","adm_no","age","ph_no","photo",'dob','bankname','accno','ifsc_code','achivements','intrest']
+        fields=["name","adm_no","age","ph_no","photo",'dob','bankname','accno','ifsc_code','achivements','interest']
         
         
 class SponsorshipSerializer(serializers.ModelSerializer):
